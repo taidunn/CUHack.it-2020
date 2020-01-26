@@ -22,20 +22,21 @@ class course:
         self.name = header[1]
         self.hours = header[2]
         
+        self.prerequisites = []
+        
         self.info = info
         
         if("Requisites:" in self.info):
-            self.reqs_info = self.getReqs_info()
+            self.reqs_info = self.initReqs_info()
         else:
             self.reqs_info = "None"
             
         if("Gen Ed:" in self.info):
-            self.genEd_info = self.getGenEd_info()
+            self.genEds = self.initGenEd_info()
         else:
-            self.genEd_info = []
+            self.genEds = []
         
-    
-    def getReqs_info(self):
+    def initReqs_info(self):
         r = []
         
         str = self.getSection("Requisites:")
@@ -60,9 +61,12 @@ class course:
         return r
         
         
-    def getGenEd_info(self):
-        genEds = []
-        return genEds
+    def initGenEd_info(self):
+        str = self.getSection('Gen Ed:')
+        str = str.replace('Gen Ed:','')
+        str = str.replace(' ','')
+        str = str.replace('- Field Work.','')
+        return str.split(',')
         
     def getSection(self, startWord):
         start = int(self.info.find(startWord))
@@ -72,51 +76,58 @@ class course:
         self.info = self.info[0:start] + self.info[end+1:]
         
         return str
-        
-
-
-
-departments = []
-departments.append([None]*1000)
-courses = []
-
+    
+    def fulfill(self, gens):
+        for e in gens:
+            if(e in self.genEds):
+                return True
+        return False
+##
+##parses the info text for prereqs and sorts them based on departments and how the need to be taken
+## 
 def getPrereqs(name,number):
     info = []
     
+    ##
+    ##looks for the column in table
+    ##
     index = -1
     for i in range(0,len(departments)):
         if(departments[i][0] == name):
             index = i
             break
+    ##this is the course
     c = departments[index][number]
     
+    ##
+    ##gets info text
+    ##
     reqInfo = c.reqs_info
     if(reqInfo == "None"):
-        return None
+        departments[index][number].prerequisites = None
+        return
         
     reqInfo = "".join(reqInfo)
-    
-    
-    
-    
+
     ands = []
     ors = []
-    grade = ""
-    perm = ""
     
     lastDep = ""
     lastPrif = ""
     classTemp = []
-    
+
     parts = reqInfo.replace(",", "")
     parts = parts.strip('.')
     parts = parts.split(' ')
     
-    print("########")
-    print(reqInfo)
-    print(parts)
-    print("------")
+    #print("########")
+    #print(reqInfo)
+    #print(parts)
+    #print("------")
     
+    ##
+    ##Lots of mess
+    ##
     for word in parts:
         if(word == ""):
             continue
@@ -175,10 +186,47 @@ def getPrereqs(name,number):
         ands.append(classTemp)
         classTemp = []
     
-    print("------")
-    print(ors)
-    print(ands)
-    print('\n')
+    #print("------")
+    #print(ors)
+    #print(ands)
+    #print('\n')
+    
+    ##
+    ##gets the actual course instances and stores them in list
+    ##
+    
+    _ands = getCourses(ands)
+    _ors = getCourses(ors)
+    
+    #print("ands : ")
+    #print(_ands)
+    
+    ##
+    ##updates the course in the table with prereqs
+    ##
+    if(len(_ands) == 0 and len(_ors) == 0):
+        departments[index][number].prerequisites = None
+    else:
+        departments[index][number].prerequisites = [_ands,_ors]
+
+##
+##This takes in the parsed strings and creates a list of courses by looking in the talbe (using the info in the string list)
+## 
+def getCourses(ls):
+    _ls = []
+    for part in ls:
+        if(len(part) == 0):
+            continue
+        department = part[0]
+        if(department == "PERMS" or department == "C"):
+            break
+        index = -1
+        for i in range(0,len(departments)):
+            if(departments[i][0] == department):
+                index = i
+        for i in range(1,len(part)):  
+           _ls.append(departments[index][int(part[i])])
+    return _ls
     
 def isInt(s):
     try: 
@@ -216,7 +264,26 @@ def read_csv(path):
                     departments[i+1][0] = c.department
                     departments[i+1][c.courseNumber] = c
                     courses.append([c.department,c.courseNumber])
-                    
+
+##
+##This takes a course department and number and returns the course from the talble
+## 
+def lookUpCourse(depart,number):
+    index = -1
+    for i in range(0,len(departments)):
+        if(departments[i][0] == depart):
+            index = i
+            break
+    return departments[index][number]
+
+ 
+departments = []
+departments.append([None]*1000)
+courses = []
+
+##
+##some of these csvs are messed up
+##    
 COM = "COM.csv"
 PHIL = "PHIL.csv"
 CLAR = "CLAR.csv"
@@ -229,21 +296,20 @@ read_csv(COM)
 read_csv(PHIL)
 read_csv(CLAR)
 read_csv(AAS)
-#read_csv(AERO)
-#read_csv(APPL)
-#read_csv(ARAB)
 
-#print(departments[0])
-#print(departments[1])
-#print(departments[2])
-#print(departments[3])
     
-
-for i in range(0,150):
-   #print(courses[i])  
+for i in range(0,len(courses)): 
    getPrereqs(courses[i][0],int(courses[i][1]))
-#print(departments[4])
-#print(departments[5])
+
+gens = input("enter in gen eds seporated by ,").split(",")
+
+needed = []
+for c in courses:
+    current = lookUpCourse(c[0], c[1])
+    if(current.fulfill(gens)):
+        needed.append(current)
+
+for e in needed:
+    print(e.name)
 
 
-       
