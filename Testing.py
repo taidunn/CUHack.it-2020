@@ -82,6 +82,9 @@ class course:
             if(e in self.genEds):
                 return True
         return False
+    
+    def toString(self):
+        return self.department + "-" + str(self.courseNumber) + self.name
 ##
 ##parses the info text for prereqs and sorts them based on departments and how the need to be taken
 ## 
@@ -198,11 +201,8 @@ def getPrereqs(name,number):
     _ands = getCourses(ands)
     _ors = getCourses(ors)
     
-    print(name + " " + str(number))
-    print("ands : ")
-    print(ands)
-    print("ors : ")
-    print(ors)
+    #print("ands : ")
+    #print(_ands)
     
     ##
     ##updates the course in the table with prereqs
@@ -266,7 +266,7 @@ def read_csv(path):
                     departments.append([None]*1000)
                     departments[i+1][0] = c.department
                     departments[i+1][c.courseNumber] = c
-                    courses.append([c.department,c.courseNumber])
+                    courses.append([c.department,c.courseNumber,c.name])
 
 ##
 ##This takes a course department and number and returns the course from the talble
@@ -299,35 +299,32 @@ read_csv(COM)
 read_csv(PHIL)
 read_csv(CLAR)
 read_csv(AAS)
-<<<<<<< HEAD
-=======
 
+gens = input("enter space delimited gen eds : ").split(" ")
+
+selected = []
+
+for e in courses:
+    c = lookUpCourse(e[0],e[1])
+    if(c.fulfill(gens)):
+        print(c.toString())
+
+input("....")
+for e in courses:
+    getPrereqs(e[0],e[1])
+
+for e in courses:
+    c = lookUpCourse(e[0],e[1])
+    print(c.department + "  " + str(c.courseNumber) + " : " + c.name)
     
-for i in range(0,len(courses)): 
-   getPrereqs(courses[i][0],int(courses[i][1]))
-
-gens = "PH,SS,VP".split(",")
-
-needed = []
-for c in courses:
-    current = lookUpCourse(c[0], c[1])
-    #print(current.genEds)
-    if(current.fulfill(gens)):
-        needed.append(current)
-
-#for e in needed:
-    ##print(e.name)
-    ##print(e.hours)
-    ##print(e.department + str(e.courseNumber))
-    ##print(e.info)
-    ##print('---------')
+    if(not c.prerequisites == None):
+        print("\n----Must----")
+        for e in c.prerequisites[0]:
+            if (not e == None):
+                print(e.toString())
+        print("----AtLeastOne----")
+        for e in c.prerequisites[1]:
+            if (not e == None):
+                print(e.toString())
+    print("\n\n")
     
-#c = lookUpCourse("COMP", 410)
-##print(c.department + " " + str(c.courseNumber))
-##print("PreReqs : ")
-##print(c.prerequisites)
-#for e in c.prerequisites:
-#print(e[0].department + " " + str(e[0].courseNumber))
-
-
->>>>>>> c593bce340a4ab6f0e944fbaf5c16ccc29338c4d
