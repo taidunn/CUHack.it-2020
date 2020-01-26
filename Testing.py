@@ -51,7 +51,10 @@ class course:
                 else:
                     r[len(r)-1] = r[len(r)-1] + " " + grade
             elif("permission of the instructor" in line.lower()):
-                r[len(r)-1] = r[len(r)-1] + " PERMS"
+                if(len(r) == 0):
+                    r.append(line[0:line.find("permission")] + " PERM")
+                else:
+                    r[len(r)-1] = r[len(r)-1] + " PERMS"
             else:
                 r.append(line)
         return r
@@ -70,31 +73,55 @@ class course:
         
         return str
         
-def stripNonAscii(str):
-    return ''.join([i if ord(i) < 128 else ' ' for i in str])
 
-f = open("Data.csv")
+
 
 departments = []
 departments.append([None]*1000)
-c = 0
-for row in csv.reader(f):
-    if(c == 0):
-        c += 1
-        continue
-    
-    c = course(stripNonAscii(row[0]),stripNonAscii(row[1]))
-    print(c.reqs_info)
-    if (departments[0][0] == None):
-        departments[0][c.courseNumber] = c
-        departments[0][0] == c.department
-    else:
-        for e in departments:
-            if(e[0] == c.department):
-                e[c.courseNumber] = c.courseNumber
-#print(departments)
+courses = []
 
+def stripNonAscii(str):
+    return ''.join([i if ord(i) < 128 else ' ' for i in str])
     
+def read_csv(path):
+    f = open(path)
+    c = 0
     
-    
-    
+    for row in csv.reader(f):
+        if(c == 0):
+            c += 1
+            continue
+        
+        c = course(stripNonAscii(row[0]),stripNonAscii(row[1]))
+        if (departments[0][0] == None):
+            departments[0][c.courseNumber] = c
+            departments[0][0] = c.department
+            courses.append[c.department,c.courseNumber]
+        else:
+            for i in range(0,len(departments)):
+                if(departments[i][0] == c.department):
+                    departments[i][c.courseNumber] = c
+                    courses.append[c.department,c.courseNumber]
+                    break
+                elif(i == len(departments)-1):
+                    print("appended")
+                    departments.append([None]*1000)
+                    departments[i+1][0] = c.department
+                    departments[i+1][c.courseNumber] = c
+                    courses.append[c.department,c.courseNumber]
+
+                    
+COM = "COM.csv"
+PHIL = "PHIL.csv"
+CLAR = "CLAR.csv"
+
+read_csv(COM)
+read_csv(PHIL)
+read_csv(CLAR)
+
+print(departments[0])
+print(departments[1])
+print(departments[2])
+
+
+       
