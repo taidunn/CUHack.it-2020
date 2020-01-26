@@ -198,8 +198,11 @@ def getPrereqs(name,number):
     _ands = getCourses(ands)
     _ors = getCourses(ors)
     
-    #print("ands : ")
-    #print(_ands)
+    print(name + " " + str(number))
+    print("ands : ")
+    print(ands)
+    print("ors : ")
+    print(ors)
     
     ##
     ##updates the course in the table with prereqs
@@ -301,15 +304,27 @@ read_csv(AAS)
 for i in range(0,len(courses)): 
    getPrereqs(courses[i][0],int(courses[i][1]))
 
-gens = input("enter in gen eds seporated by ,").split(",")
+gens = "PH,SS,VP".split(",")
 
 needed = []
 for c in courses:
     current = lookUpCourse(c[0], c[1])
+    #print(current.genEds)
     if(current.fulfill(gens)):
         needed.append(current)
 
-for e in needed:
-    print(e.name)
+#for e in needed:
+    ##print(e.name)
+    ##print(e.hours)
+    ##print(e.department + str(e.courseNumber))
+    ##print(e.info)
+    ##print('---------')
+    
+#c = lookUpCourse("COMP", 410)
+##print(c.department + " " + str(c.courseNumber))
+##print("PreReqs : ")
+##print(c.prerequisites)
+#for e in c.prerequisites:
+#print(e[0].department + " " + str(e[0].courseNumber))
 
 
