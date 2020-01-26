@@ -1,5 +1,13 @@
 #from testing import ts
+from flask import render_template, Blueprint
+main = Blueprint('main', __name__)
 
+@main.route("/", methods=['GET'])
+def home():
+	return render_template("index.html")
+
+
+"""
 from flask import render_template, Blueprint
 import testing
 main = Blueprint('main', __name__)
@@ -30,7 +38,7 @@ courses = []
 def testing():
     return render_template("testing.html",courses)
 
-
+"""
 #depart_course = ts.read_csv("courses/COM")
 #departments = depart_course[0]
 #courses = depart_course[1]
