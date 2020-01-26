@@ -296,20 +296,3 @@ read_csv(COM)
 read_csv(PHIL)
 read_csv(CLAR)
 read_csv(AAS)
-
-    
-for i in range(0,len(courses)): 
-   getPrereqs(courses[i][0],int(courses[i][1]))
-
-gens = input("enter in gen eds seporated by ,").split(",")
-
-needed = []
-for c in courses:
-    current = lookUpCourse(c[0], c[1])
-    if(current.fulfill(gens)):
-        needed.append(current)
-
-for e in needed:
-    print(e.name)
-
-
